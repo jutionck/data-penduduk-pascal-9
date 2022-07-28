@@ -4,11 +4,10 @@ module.exports = class PeopleService {
     constructor() {
         this.people = [];
         this.validate = new Validate()
-
     }
 
     register(people) {
-        console.log(`[ADD] Tambah Data Penduduk`)
+        console.log(`[ADD] Tambah Data Penduduk`);
         return new Promise((resolve, reject) => {
             setTimeout(() => {
                 if (this.isCodeExist(people.nik)) {
@@ -22,15 +21,23 @@ module.exports = class PeopleService {
                     people.cityId ||
                     people.districtId
                 ) {
-                    people.nik = this.generateNIK(
-                        people.gender,
-                        people.birthDate,
-                        people.provinceId,
-                        people.cityId,
-                        people.districtId
-                    )
-                    this.people.push(people);
-                    resolve(new Response().successMessage('200', commonResponse.successMessage, people))
+                    if (this.validate.isGenderValid(people.gender)) {
+                        people.nik = this.generateNIK(
+                            people.gender,
+                            people.birthDate,
+                            people.provinceId,
+                            people.cityId,
+                            people.districtId
+                        )
+                        if (people.nik < 1 && people.nik > 16) {
+                            reject(new Response().errorMessage('400', commonResponse.isLengthNikValid))
+                        } else {
+                            this.people.push(people);
+                            resolve(new Response().successMessage('200', commonResponse.successMessage, people))
+                        }
+                    } else {
+                        reject(new Response().errorMessage('400', commonResponse.isGenderValid))
+                    }
                 } else {
                     reject(new Response().errorMessage('400', commonResponse.isRequire))
                 }
@@ -74,10 +81,9 @@ module.exports = class PeopleService {
     generateNIK = (gender, birthDate, provinceId, cityId, districtId) => {
         let nik = '';
         let birthDateCode = '';
-        birthDate = birthDate.toLowerCase();
         birthDate = birthDate.split('-');
         gender = gender.toLowerCase();
-        if (gender === 'l'){
+        if (gender.toLowerCase() === 'laki-laki'){
             birthDateCode = `${birthDate[0]}${birthDate[1]}${birthDate[2].slice(2,4)}`
         } else {
             birthDateCode = `${Number(birthDate[0]) + 40}${birthDate[1]}${birthDate[2].slice(2,4)}`

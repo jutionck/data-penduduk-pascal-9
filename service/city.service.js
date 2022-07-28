@@ -33,7 +33,7 @@ module.exports = class CityService extends BaseService {
         return new Promise((resolve, reject) => {
             setTimeout(() => {
                 if (this.validate.isExist(this.cities)) {
-                    resolve(new Response().successMessage('200', commonResponse.successMessage, this.provinces));
+                    resolve(new Response().successMessage('200', commonResponse.successMessage, this.cities));
                 } else {
                     reject(new Response().errorMessage('400', commonResponse.dataNotExist))
                 }
